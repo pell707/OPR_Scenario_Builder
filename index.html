@@ -1,0 +1,1564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OPR Scenario Builder</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500&display=swap');
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --ink: #1a1a1a;
+            --paper: #ffffff;
+            --accent-color: #c07050;
+            /* Panels */
+            --panel-bg: #2a2a2a;
+            --panel-border: #4a4a4a;
+            /* Inputs */
+            --input-bg: #1f1f1f;
+            --input-border: #4a4a4a;
+            --input-focus: #8c8c8c;
+            /* Text */
+            --label: #c8c8c8;
+            --section-head: #f0f0f0;
+            /* Tags / Cards */
+            --tag-bg: #333333;
+            --tag-hover: #404040;
+            /* Selected */
+            --selected-bg: #555555;
+            --selected-border: #888888;
+            --selected-text: #ffffff;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            font-family: 'Barlow', sans-serif;
+            background: var(--panel-bg);
+            color: var(--section-head);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* HEADER */
+        header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 9px 20px;
+            background: #141414;
+            border-bottom: 1px solid var(--panel-border);
+            flex-shrink: 0;
+        }
+
+        .logo {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 700;
+            font-size: 18px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #f0f0f0;
+        }
+
+            .logo span {
+                color: var(--accent-color);
+            }
+
+        .subtitle {
+            font-size: 12px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #b0b0b0;
+        }
+
+        .header-right {
+            margin-left: auto;
+        }
+
+        .btn-print {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 7px 18px;
+            background: #333;
+            color: #f0f0f0;
+            border: 1px solid #555;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+            .btn-print:hover {
+                background: #444;
+                border-color: var(--accent-color);
+            }
+
+        /* MAIN */
+        .main {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* FORM PANEL */
+        .form-panel {
+            width: 360px;
+            flex-shrink: 0;
+            overflow-y: auto;
+            padding: 16px;
+            border-right: 1px solid var(--panel-border);
+            background: #1f1f1f;
+        }
+
+        .form-panel-top {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 18px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--panel-border);
+        }
+
+        .btn-generate {
+            width: 100%;
+            padding: 10px 14px;
+            background: linear-gradient(135deg, #c07050 0%, #a85a42 100%);
+            border: 1px solid #d9865c;
+            color: #f5f5f5;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.15s;
+            border-radius: 2px;
+        }
+
+            .btn-generate:hover {
+                background: linear-gradient(135deg, #d18560 0%, #b8664d 100%);
+                border-color: #e8966f;
+                transform: translateY(-1px);
+            }
+
+            .btn-generate:active {
+                transform: translateY(0);
+            }
+
+        .form-panel::-webkit-scrollbar {
+            width: 5px;
+            background: #141414;
+        }
+
+        .form-panel::-webkit-scrollbar-track {
+            background: #141414;
+        }
+
+        .form-panel::-webkit-scrollbar-thumb {
+            background: #4a4a4a;
+            border-radius: 3px;
+        }
+
+        .form-section {
+            margin-bottom: 18px;
+        }
+
+        .form-section-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 14px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--accent-color);
+            padding-bottom: 5px;
+            border-bottom: 1px solid var(--panel-border);
+            margin-bottom: 10px;
+        }
+
+        label {
+            display: block;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 13px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--label);
+            margin-bottom: 4px;
+        }
+
+        input[type="text"], textarea, select {
+            width: 100%;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            color: #e6e6e6;
+            font-family: 'Barlow', sans-serif;
+            font-size: 15px;
+            padding: 7px 9px;
+            outline: none;
+            transition: border-color 0.15s;
+            margin-bottom: 10px;
+            border-radius: 0;
+        }
+
+            input[type="text"]:focus, textarea:focus, select:focus {
+                border-color: var(--accent-color);
+            }
+
+        textarea {
+            resize: vertical;
+            min-height: 64px;
+        }
+
+        select option {
+            background: #2a2a2a;
+        }
+
+        .field {
+            margin-bottom: 10px;
+        }
+
+        /* DEPLOY BUTTON */
+        .deploy-btn {
+            width: 100%;
+            padding: 9px 12px;
+            background: var(--tag-bg);
+            border: 1px solid var(--input-border);
+            color: #d0d0d0;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.12s;
+            margin-bottom: 10px;
+        }
+
+            .deploy-btn:hover {
+                background: var(--tag-hover);
+                border-color: var(--accent-color);
+            }
+
+            .deploy-btn .deploy-preview-img {
+                height: 36px;
+                width: 60px;
+                object-fit: cover;
+                object-position: center;
+                border: 1px solid #4a4a4a;
+                opacity: 0.85;
+            }
+
+            .deploy-btn .deploy-name {
+                flex: 1;
+                text-align: left;
+                padding: 0 10px;
+            }
+
+            .deploy-btn .deploy-cat {
+                font-size: 12px;
+                font-weight: 400;
+                color: var(--accent-color);
+                letter-spacing: 0.5px;
+            }
+
+        /* POPUP OVERLAY */
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .popup-overlay.open {
+                display: flex;
+            }
+
+        /* RANDOM GENERATOR POPUP */
+        .random-gen-popup {
+            background: #1f1f1f;
+            border: 1px solid #555;
+            width: 480px;
+            max-width: 95vw;
+            padding: 28px;
+            border-radius: 2px;
+        }
+
+        .random-gen-header {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #f0f0f0;
+            margin-bottom: 20px;
+            text-align: center;
+            border-bottom: 1px solid var(--panel-border);
+            padding-bottom: 12px;
+        }
+
+        .random-gen-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .random-gen-option {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+            .random-gen-option label {
+                font-family: 'Barlow Condensed', sans-serif;
+                font-size: 13px;
+                letter-spacing: 1.5px;
+                text-transform: uppercase;
+                color: var(--accent-color);
+                margin-bottom: 0;
+            }
+
+        .toggle-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 4px;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 10px;
+            background: #333;
+            border: 1px solid #555;
+            color: #c0c0c0;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.15s;
+            border-radius: 2px;
+        }
+
+            .toggle-btn:hover {
+                border-color: var(--accent-color);
+                background: #3a3a3a;
+            }
+
+            .toggle-btn.active {
+                background: var(--accent-color);
+                border-color: var(--accent-color);
+                color: #ffffff;
+            }
+
+        .random-gen-option input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            color: #e6e6e6;
+            font-family: 'Barlow', sans-serif;
+            font-size: 14px;
+            border-radius: 2px;
+        }
+
+            .random-gen-option input[type="number"]:focus {
+                border-color: var(--accent-color);
+            }
+
+        .random-gen-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--panel-border);
+        }
+
+            .random-gen-buttons button {
+                flex: 1;
+                padding: 10px;
+                font-family: 'Barlow Condensed', sans-serif;
+                font-size: 13px;
+                font-weight: 700;
+                letter-spacing: 1.5px;
+                text-transform: uppercase;
+                cursor: pointer;
+                border-radius: 2px;
+                transition: all 0.15s;
+                border: 1px solid;
+            }
+
+            .random-gen-buttons .btn-confirm {
+                background: var(--accent-color);
+                border-color: var(--accent-color);
+                color: #ffffff;
+            }
+
+                .random-gen-buttons .btn-confirm:hover {
+                    background: #d18560;
+                    border-color: #d18560;
+                }
+
+            .random-gen-buttons .btn-cancel {
+                background: #333;
+                border-color: #555;
+                color: #c0c0c0;
+            }
+
+                .random-gen-buttons .btn-cancel:hover {
+                    background: #3a3a3a;
+                    border-color: var(--accent-color);
+                }
+
+        .popup-box {
+            background: #1f1f1f;
+            border: 1px solid #555;
+            width: 820px;
+            max-width: 95vw;
+            max-height: 88vh;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+            .popup-box::-webkit-scrollbar {
+                width: 5px;
+            }
+
+            .popup-box::-webkit-scrollbar-thumb {
+                background: #4a4a4a;
+            }
+
+        .popup-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--panel-border);
+        }
+
+            .popup-header h2 {
+                font-family: 'Barlow Condensed', sans-serif;
+                font-size: 22px;
+                letter-spacing: 2px;
+                text-transform: uppercase;
+                color: #f0f0f0;
+            }
+
+        .popup-close {
+            background: none;
+            border: none;
+            color: #f0f0f0;
+            font-size: 22px;
+            cursor: pointer;
+            padding: 0 4px;
+        }
+
+            .popup-close:hover {
+                color: var(--accent-color);
+            }
+
+        .popup-cat-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 16px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--accent-color);
+            margin-bottom: 8px;
+            margin-top: 28px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid var(--panel-border);
+        }
+
+        .popup-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .deploy-card {
+            background: var(--tag-bg);
+            border: 1px solid var(--input-border);
+            padding: 8px;
+            cursor: pointer;
+            transition: all 0.12s;
+        }
+
+            .deploy-card:hover {
+                border-color: var(--accent-color);
+                background: var(--tag-hover);
+            }
+
+            .deploy-card.selected {
+                background: color-mix(in srgb, var(--accent-color) 18%, #333);
+                border-color: var(--accent-color);
+            }
+
+            .deploy-card img {
+                width: 100%;
+                height: auto;
+                max-height: 140px;
+                object-fit: contain;
+                background: transparent;
+                border: none;
+                display: block;
+                margin-bottom: 5px;
+            }
+
+            .deploy-card .dc-name {
+                font-family: 'Barlow Condensed', sans-serif;
+                font-size: 14px;
+                font-weight: 600;
+                color: #f0f0f0;
+                letter-spacing: 0.6px;
+                text-align: center;
+                text-transform: uppercase;
+            }
+
+        /* SM rows */
+        .sm-list {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-bottom: 8px;
+        }
+
+        .sm-row {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+            .sm-row select {
+                margin: 0;
+                flex: 1;
+                font-size: 14px;
+                padding: 6px 7px;
+            }
+
+            .sm-row .btn-remove {
+                background: #2f2f2f;
+                border: 1px solid #555;
+                color: #b0b0b0;
+                font-size: 16px;
+                width: 28px;
+                height: 28px;
+                cursor: pointer;
+                flex-shrink: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: background 0.12s;
+            }
+
+                .sm-row .btn-remove:hover {
+                    background: #444;
+                }
+
+        .btn-add-sm {
+            background: var(--tag-bg);
+            border: 1px dashed var(--input-border);
+            color: var(--accent-color);
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 12px;
+            letter-spacing: 1px;
+            padding: 7px;
+            width: 100%;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.12s;
+        }
+
+            .btn-add-sm:hover {
+                border-color: var(--accent-color);
+                color: var(--label);
+            }
+
+        /* PREVIEW PANEL */
+        .preview-panel {
+            flex: 1;
+            overflow: auto;
+            background: #555;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            gap: 12px;
+        }
+
+            .preview-panel::-webkit-scrollbar {
+                width: 7px;
+            }
+
+            .preview-panel::-webkit-scrollbar-thumb {
+                background: #333;
+                border-radius: 4px;
+            }
+
+        .preview-label {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #c0c0c0;
+            align-self: flex-start;
+        }
+
+        /* A4 DOCUMENT — black & white, printer friendly */
+        .a4 {
+            width: 210mm;
+            min-height: 297mm;
+            background: #fff;
+            color: #000;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.5);
+            padding: 13mm 13mm 20mm 13mm;
+            position: relative;
+            font-family: 'Barlow', sans-serif;
+        }
+
+        .doc-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 34px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #000;
+            line-height: 1;
+            border-bottom: 2.5px solid #000;
+            padding-bottom: 5px;
+            margin-bottom: 3px;
+        }
+
+        .doc-pack {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #555;
+            margin-bottom: 8px;
+        }
+
+        .doc-description {
+            font-size: 12px;
+            line-height: 1.55;
+            color: #333;
+            margin-bottom: 24px;
+            font-style: italic;
+            border-left: 2px solid #999;
+            padding-left: 8px;
+        }
+
+        /* 3-column layout */
+        .doc-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .doc-col-title {
+            font-family: 'Barlow', sans-serif;
+            font-size: 17px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #000;
+            border-bottom: 1.5px solid #000;
+            padding-bottom: 3px;
+            margin-bottom: 10px;
+        }
+
+        .doc-col-body {
+            font-size: 13.5px;
+            line-height: 1.55;
+            color: #111;
+        }
+
+            .doc-col-body p {
+                margin-bottom: 5px;
+            }
+
+            .doc-col-body .section-label {
+                font-family: 'Barlow', sans-serif;
+                font-weight: 700;
+                font-size: 15px;
+                text-transform: uppercase;
+                display: block;
+                margin-top: 10px;
+                margin-bottom: 1px;
+            }
+
+            .doc-col-body ul {
+                padding-left: 13px;
+                margin-bottom: 5px;
+            }
+
+            .doc-col-body li {
+                margin-bottom: 3px;
+            }
+
+            .doc-col-body .sm-name {
+                font-weight: 700;
+            }
+
+        /* DIAGRAM */
+        .doc-diagram-area {
+            border: 0px solid #000;
+            padding: 8px 10px 6px;
+            margin-top: 32px;
+            margin-bottom: 8px;
+        }
+
+        .doc-diagram-label {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #666;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+
+        .doc-diagram-area img {
+            display: block;
+            max-width: 150%;
+            max-height: 180px;
+            object-fit: contain;
+            margin: 0 auto 12px;
+        }
+
+        /* FOOTER */
+        .doc-footer {
+            position: absolute;
+            bottom: 7mm;
+            left: 13mm;
+            right: 13mm;
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid #aaa;
+            padding-top: 3px;
+        }
+
+            .doc-footer span {
+                font-family: 'Barlow Condensed', sans-serif;
+                font-size: 10px;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+                color: #888;
+            }
+
+        /* PRINT */
+        @media print {
+            @page {
+                size: A4;
+                margin: 0;
+            }
+
+            html, body {
+                background: white;
+                overflow: visible;
+                height: auto;
+            }
+
+            header, .form-panel, .preview-label, .popup-overlay {
+                display: none !important;
+            }
+
+            .main, .preview-panel {
+                display: block;
+                overflow: visible;
+                background: white;
+                padding: 0;
+            }
+
+            .a4 {
+                box-shadow: none;
+                width: 210mm;
+                min-height: 297mm;
+                margin: 0;
+                padding: 13mm 13mm 20mm 13mm;
+                page-break-after: always;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div>
+            <div class="logo">OPR <span>Scenario</span> Builder</div>
+        </div>
+        <div class="subtitle">One Page Rules</div>
+        <div class="header-right">
+            <button class="btn-print" onclick="window.print()">⎙ Print / Save PDF</button>
+        </div>
+    </header>
+
+    <div class="main">
+
+        <!-- FORM -->
+        <div class="form-panel">
+
+            <div class="form-panel-top">
+                <button class="btn-generate" onclick="openRandomGenPopup()">Generate Random Scenario</button>
+            </div>
+
+            <div class="form-section">
+                <div class="form-section-title">Identity</div>
+                <div class="field">
+                    <label>Scenario Name</label>
+                    <input type="text" id="scenarioName" value="Custom Scenario" oninput="update()">
+                </div>
+                <div class="field">
+                    <label>Description / Flavour Text</label>
+                    <textarea id="scenarioDesc" oninput="update()" placeholder="Optional flavour text… (Enter for new line)"></textarea>
+                </div>
+                <div class="field">
+                    <label>Author</label>
+                    <input type="text" id="packName" value="Created by João Carlos @pell707" oninput="update()">
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="form-section-title">Deployment Style</div>
+                <button class="deploy-btn" onclick="openDeployPopup()">
+                    <img id="deployThumb" class="deploy-preview-img" src="" alt="">
+                    <span class="deploy-name">
+                        <span id="deployNameLabel">Flank Assault</span><br>
+                        <span class="deploy-cat" id="deployCatLabel">Strategic</span>
+                    </span>
+                    <span style="color:#888;font-size:12px">▼ Change</span>
+                </button>
+            </div>
+
+            <div class="form-section">
+                <div class="form-section-title">Mission</div>
+                <div class="field">
+                    <label>Mission Type</label>
+                    <select id="missionType" onchange="onMissionTypeChange()">
+                        <option value="faceoff">Face-Off</option>
+                        <option value="progressive">Progressive Scoring</option>
+                        <option value="attackdefend">Attack &amp; Defend</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Mission</label>
+                    <select id="missionSelect" onchange="update()"></select>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="form-section-title">Side-Missions</div>
+                <div class="sm-list" id="smList"></div>
+                <button class="btn-add-sm" onclick="addSideMission()">+ Add Side-Mission</button>
+            </div>
+
+        </div>
+
+        <!-- POPUP -->
+        <div class="popup-overlay" id="deployPopup" onclick="closeDeployPopup(event)">
+            <div class="popup-box" onclick="event.stopPropagation()">
+                <div class="popup-header">
+                    <h2>Choose Deployment Style</h2>
+                    <button class="popup-close" onclick="closeDeployPopup()">✕</button>
+                </div>
+                <div id="popupContent"></div>
+            </div>
+        </div>
+
+        <!-- RANDOM GENERATOR POPUP -->
+        <div class="popup-overlay" id="randomGenPopup" onclick="closeRandomGenPopup(event)">
+            <div class="random-gen-popup" onclick="event.stopPropagation()">
+                <div class="random-gen-header">Generate Random Scenario</div>
+                <div class="random-gen-content">
+
+                    <div class="random-gen-option">
+                        <label>Number of Players</label>
+                        <div class="toggle-group">
+                            <button class="toggle-btn active" data-players="2" onclick="setPlayerCount(2, this)">
+                                2 Players
+                            </button>
+                            <button class="toggle-btn" data-players="3" onclick="setPlayerCount(3, this)">
+                                3 Players
+                            </button>
+                            <button class="toggle-btn" data-players="4" onclick="setPlayerCount(4, this)">
+                                4 Players
+                            </button>
+                        </div>
+
+                    </div>
+
+                    <div class="random-gen-option">
+                        <label>Game Mode</label>
+                        <div class="toggle-group">
+                            <button class="toggle-btn active" data-mode="narrative" onclick="setGameMode('narrative', this)">
+                                Narrative / Casual
+                            </button>
+                            <button class="toggle-btn" data-mode="competitive" onclick="setGameMode('competitive', this)">
+                                Competitive
+                            </button>
+                        </div>
+                        <div id="modeDescription" style="font-size: 12px; color: #999; margin-top: 6px; line-height: 1.4;">
+                            All deployment styles and mission types available for varied storytelling.
+                        </div>
+                    </div>
+
+                    <div class="random-gen-option">
+                        <label>Number of Side-Missions</label>
+                        <input type="number" id="numSideMissions" value="3" min="0" max="8">
+                    </div>
+
+                    <div class="random-gen-buttons">
+                        <button class="btn-cancel" onclick="closeRandomGenPopup()">Cancel</button>
+                        <button class="btn-confirm" onclick="generateRandomScenario()">Generate</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PREVIEW -->
+        <div class="preview-panel">
+            <div class="preview-label">Live Preview — A4</div>
+            <div class="a4" id="a4doc"></div>
+        </div>
+
+    </div>
+
+    <script>
+        // Small DOM helper to cut down on repeated document.getElementById calls.
+        const $ = id => document.getElementById(id);
+
+        // ── DEPLOYMENT DATA ──
+        // Originally split across three parallel objects (DEPLOY_IMGS, DEPLOYMENTS,
+        // DEPLOY_TEXT) all keyed by the same id — easy to get out of sync and required
+        // three separate lookups everywhere a deployment was used. Merged into one
+        // array + a Map for O(1) lookup by id.
+        const DEPLOYMENTS = [
+            {
+                id: 'frontline', name: 'Front Line', cat: 'Standard',
+                img: './Images/Deployment - Standard/Front Line.png',
+                text: 'zone A or B. Deployment zones are 12" strips along the long table edges.'
+            },
+            {
+                id: 'groundwar', name: 'Ground War', cat: 'Standard',
+                img: './Images/Deployment - Standard/Ground War.png',
+                text: 'zone A or B. Deployment zones are 24" wide strips along the short table edges.'
+            },
+            {
+                id: 'sidebattle', name: 'Side Battle', cat: 'Standard',
+                img: './Images/Deployment - Standard/Side Battle.png',
+                text: 'zone A or B. Zones are diagonal triangles split corner to corner across the table.'
+            },
+            {
+                id: 'disordered', name: 'Disordered', cat: 'Standard',
+                img: './Images/Deployment - Standard/Disordered.png',
+                text: 'zone A or B. Zone A occupies the top and bottom triangles; Zone B the left and right triangles of a central diamond (36" wide, 24" tall).'
+            },
+            {
+                id: 'spearhead', name: 'Spearhead', cat: 'Standard',
+                img: './Images/Deployment - Standard/Spearhead.png',
+                text: 'zone A or B. Each zone is a triangular arrow-point shape pointing inward from a short edge (24" × 24").'
+            },
+            {
+                id: 'opposing', name: 'Opposing Forces', cat: 'Standard',
+                img: './Images/Deployment - Standard/Opposing Forces.png',
+                text: 'zone A or B. Each zone is a 24" × 24" square in opposite table corners.'
+            },
+
+            {
+                id: 'nomansland', name: "No Man's Land", cat: 'Strategic',
+                img: "./Images/Deployment - Strategic/No Man's Land.png",
+                text: 'zone A or B. Deployment zones are narrow 6" strips along the long edges, leaving a wide no-man\'s-land between them.'
+            },
+            {
+                id: 'longhaul', name: 'Long Haul', cat: 'Strategic',
+                img: './Images/Deployment - Strategic/Long Haul.png',
+                text: 'zone A or B. Deployment zones are 12" wide strips along the short table edges.'
+            },
+            {
+                id: 'flankassault', name: 'Flank Assault', cat: 'Strategic',
+                img: './Images/Deployment - Strategic/Flank Assault.png',
+                text: 'zone A or B. Zone A is a 12" strip along one long edge; Zone B is an L-shaped zone along the opposite long edge and one short edge (12" deep, 60" wide).'
+            },
+            {
+                id: 'frontalclash', name: 'Frontal Clash', cat: 'Strategic',
+                img: './Images/Deployment - Strategic/Frontal Clash.png',
+                text: 'zone A or B. Zone A is a notched rectangle along the top (24" deep); Zone B is a mirrored notch along the bottom (6" × 24").'
+            },
+            {
+                id: 'tacticalpush', name: 'Tactical Push', cat: 'Strategic',
+                img: './Images/Deployment - Strategic/Tactical Push.png',
+                text: 'zone A or B. Zones are staggered L-shaped areas on opposite sides of the board, each 18" wide.'
+            },
+            {
+                id: 'meeting', name: 'Meeting Engagement', cat: 'Strategic',
+                img: './Images/Deployment - Strategic/Meeting Engagement.png',
+                text: 'zone A or B. Each player controls two 12" × 12" zones in diagonally opposite corners.'
+            },
+
+            {
+                id: 'openwarzone', name: 'Open Warzone', cat: 'Asymmetric',
+                img: './Images/Deployment - Asymmetric/Open Warzone.png',
+                text: 'zone A or B. Zone A is an 18" strip; Zone B is a 6" strip — both along opposite long edges.'
+            },
+            {
+                id: 'pushback', name: 'Pushback', cat: 'Asymmetric',
+                img: './Images/Deployment - Asymmetric/Pushback.png',
+                text: 'zone A or B. Zone A is a 12" wide strip; Zone B is a 36" wide strip — both along opposite short edges.'
+            },
+            {
+                id: 'cornered', name: 'Cornered', cat: 'Asymmetric',
+                img: './Images/Deployment - Asymmetric/Cornered.png',
+                text: 'zone A or B. Zone A is a 24" × 24" corner square; Zone B is a larger area covering most of the opposite side (24" deep). '
+            },
+            {
+                id: 'encircled', name: 'Encircled', cat: 'Asymmetric',
+                img: './Images/Deployment - Asymmetric/Encircled.png',
+                text: 'zone A or B. Zone A forms a 6" frame around three sides of the table; Zone B is an 18" × 24" central rectangle.'
+            },
+            {
+                id: 'behindenemy', name: 'Behind Enemy Lines', cat: 'Asymmetric',
+                img: './Images/Deployment - Asymmetric/Behind Enemy Lines.png',
+                text: 'zone A or B. Zone A is a 48" × 12" strip near one edge; Zone B is a 12" × 12" area that overlaps into enemy territory.'
+            },
+            {
+                id: 'lightning', name: 'Lightning Strike', cat: 'Asymmetric',
+                img: './Images/Deployment - Asymmetric/Lightning Strike.png',
+                text: 'zone A or B. Zone A forms two 24" triangular wedges on the left side; Zone B is a large area on the right.'
+            },
+
+            {
+                id: 'fourway', name: 'Four-Way Deployment', cat: 'Multiplayer',
+                img: './Images/Deployment - Multiplayer/Four Way.png',
+                text: 'zone A, B, C, or D — each a 24" × 12" corner square.'
+            },
+            {
+                id: 'threeway', name: 'Three-Way Deployment', cat: 'Multiplayer',
+                img: './Images/Deployment - Multiplayer/Three Way.png',
+                text: 'zone A, B, or C. Zone A and C are 24" × 12" strips along the short edges; Zone B is a 24" × 12" section at the centre bottom.'
+            },
+        ];
+        const DEPLOY_MAP = new Map(DEPLOYMENTS.map(d => [d.id, d]));
+        const DEPLOY_CATS = ['Standard', 'Strategic', 'Asymmetric', 'Multiplayer'];
+        // Grouped once up front instead of re-filtering DEPLOYMENTS per category on every popup render.
+        const DEPLOYMENTS_BY_CAT = new Map(DEPLOY_CATS.map(cat => [cat, DEPLOYMENTS.filter(d => d.cat === cat)]));
+
+        const MISSIONS = {
+            faceoff: [
+                {
+                    id: 'duel', name: 'Duel',
+                    objCount: 'D3+2', objPlacement: 'Players alternate placing markers outside deployment zones, over 9" from other objectives.',
+                    winCon: 'After 4 rounds the game ends. The player that controls most markers wins.',
+                    special: '', scoring: 'face-off'
+                },
+                {
+                    id: 'seizeground', name: 'Seize Ground',
+                    objCount: '4', objPlacement: 'Divide the non-deployment zone into 4 equal quarters. Place one marker at the centre of each.',
+                    winCon: 'After 4 rounds the game ends. The player that controls most markers wins.',
+                    special: '', scoring: 'face-off'
+                },
+                {
+                    id: 'relichunt', name: 'Relic Hunt',
+                    objCount: '3', objPlacement: 'Players alternate placing markers outside deployment zones, over 9" from other objectives.',
+                    winCon: 'After 4 rounds the game ends. The player that controls most markers wins.',
+                    special: 'If a unit seizes a marker, remove it from the table, it is carried by that unit. If the unit is shaken or destroyed, its opponent places the marker within 1"', scoring: 'face-off'
+                },
+                {
+                    id: 'sabotage', name: 'Sabotage',
+                    objCount: '1 * PLAYERS', objPlacement: 'Each player places 1 marker on the edge of their deployment zone, over 9" from the table edge. Each marker belongs to the player that placed it.',
+                    winCon: 'After 4 rounds the game ends. The player who destroyed the enemy marker whilst keeping their own intact wins.',
+                    special: 'If a unit seizes the enemy marker, it is destroyed and removed from play.', scoring: 'face-off'
+                },
+                {
+                    id: 'breakthrough', name: 'Breakthrough',
+                    objCount: '2 * PLAYERS', objPlacement: 'Each player places 2 markers inside their own deployment zone, over 9" from the zone edge and over 9" from each other.',
+                    winCon: 'After 4 rounds the game ends. The player that controls most markers wins.',
+                    special: '', scoring: 'face-off'
+                },
+                {
+                    id: 'kingofthehill', name: 'King of the Hill',
+                    objCount: '1', objPlacement: 'Place the single marker over 9" from all deployment zones and all table edges.',
+                    winCon: 'After 4 rounds the game ends. The player that controls the marker wins.',
+                    special: '', scoring: 'face-off'
+                },
+            ],
+            progressive: [
+                {
+                    id: 'pitchedbattle', name: 'Pitched Battle',
+                    objCount: 'D3+2', objPlacement: 'Players alternate placing markers outside deployment zones, over 9" from other objectives.',
+                    winCon: 'After 4 rounds the game ends. The player that scored most VPs wins.',
+                    special: '', scoring: 'progressive'
+                },
+                {
+                    id: 'domination', name: 'Domination',
+                    objCount: '4', objPlacement: 'Divide the non-deployment zone into 4 equal quarters. Place one marker at the centre of each.',
+                    winCon: 'After 4 rounds the game ends. The player that scored most VPs wins.',
+                    special: '', scoring: 'progressive'
+                },
+                {
+                    id: 'capturehold', name: 'Capture & Hold',
+                    objCount: '3', objPlacement: 'Players alternate placing markers outside deployment zones, over 9" from other objectives.',
+                    winCon: 'After 4 rounds the game ends. The player that scored most VPs wins.',
+                    special: 'If a unit seizes a marker, remove it from the table, it is carried by that unit. If the unit is shaken or destroyed, its opponent places the marker within 1"', scoring: 'progressive'
+                },
+                {
+                    id: 'demolition', name: 'Demolition',
+                    objCount: '1 * PLAYERS', objPlacement: 'Each player places 1 marker on the edge of their deployment zone, over 9" from the table edge. Each marker belongs to the player that placed it.',
+                    winCon: 'After 4 rounds the game ends. The player that scored most VPs wins.',
+                    special: 'If a unit seizes the enemy marker, it is destroyed and removed from play. On the round a player destroys the enemy marker, they score X VP if their own marker was already destroyed, where X is the current round number.', scoring: 'progressive'
+                },
+                {
+                    id: 'headquarters', name: 'Headquarters',
+                    objCount: '2 * PLAYERS', objPlacement: 'Each player places 2 markers inside their own deployment zone, over 9" from the zone edge and over 9" from each other.',
+                    winCon: 'After 4 rounds the game ends. The player that scored most VPs wins.',
+                    special: '', scoring: 'progressive'
+                },
+                {
+                    id: 'moshpit', name: 'Mosh Pit',
+                    objCount: '1', objPlacement: 'Place the single marker over 9" from all deployment zones and all table edges.',
+                    winCon: 'After 4 rounds the game ends. The player that scored most VPs wins.',
+                    special: 'At the end of each round, the player controlling the objective marker scores an additional X VP if they were the first player to seize it, where X is the current round number.', scoring: 'progressive'
+                },
+            ],
+            attackdefend: [
+                {
+                    id: 'theraid', name: 'The Raid',
+                    objCount: '1', objPlacement: 'Defender places 1 marker within 12" of the table centre, then deploys half their units within 12" of it. Attacker deploys within 12" of any table edge; defender deploys remaining units over 12" from enemies and the marker.',
+                    winCon: 'After 6 rounds the game ends. The player that controls the marker wins.',
+                    special: 'The attacking army gets 25% more points than the defender.', scoring: 'unique', rounds: 6
+                },
+                {
+                    id: 'smashandgrab', name: 'Smash & Grab',
+                    objCount: 'D3+2', objPlacement: `Defender places D3+2 objective markers, secretly designating one as the Relic and one as a Trap. <br>When an attacker’s unit seizes a marker, the defender must reveal what it was. If it was a trap the unit takes D6+1 hits, and if it was not the relic then the marker is removed.`,
+                    special: 'The attacking army gets 25% more points than the defender.<br>When a unit seizes the Relic marker, remove it from the table, it is carried by that unit. If the unit is shaken or destroyed, its opponent places the marker within 1"', scoring: 'unique', rounds: 6
+                },
+                {
+                    id: 'ambush', name: 'Ambush',
+                    objCount: 'D3', objPlacement: 'Defender places D3 markers first. Defender deploys half their units in their zone; attacker deploys all units anywhere on the table, over 12" from enemies but within 6" of at least one friendly. Defender deploys remaining units anywhere, over 12" from enemies.',
+                    winCon: 'After 6 rounds the game ends. The player that controls most markers wins.',
+                    special: '', scoring: 'unique', rounds: 6
+                },
+                {
+                    id: 'laststand', name: 'Last Stand',
+                    objCount: '1', objPlacement: 'Defender places 1 marker within 12" of table centre. Defender deploys within 12" of table centre; attacker deploys within 12" of any table edge.',
+                    winCon: 'After 6 rounds the game ends. The player that controls the marker wins.',
+                    special: 'When an attacker unit is fully destroyed for the first time, it enters reserves. Each round the attacker rolls one die per reserve unit; on a 6 it may return within 12" of any table edge. Units may only enter reserves once.', scoring: 'unique', rounds: 6
+                },
+                {
+                    id: 'vipescort', name: 'VIP Escort',
+                    objCount: '1', objPlacement: 'Defender places 1 marker within 6" of any table edge, then deploys within 12" of it. Attacker deploys within 12" of any table edge, over 12" from enemies.',
+                    winCon: 'After 6 rounds the game ends. If the marker is within 6" of the opposite table edge from where it started, the defender wins; otherwise the attacker wins.',
+                    special: 'At the start of each round, if the defender controls the marker, they may move it up to 12" in any direction.', scoring: 'unique', rounds: 6
+                },
+                {
+                    id: 'therescue', name: 'The Rescue',
+                    objCount: '1', objPlacement: 'Defender places 1 marker within 12" of table centre. Both players deploy only half their units; the rest are in reserves. From round 2, roll one die per reserve unit — on a 4+ it arrives within 12" of any table edge, over 12" from enemies and the marker.',
+                    winCon: 'After 6 rounds the game ends. If the marker is within 6" of any table edge, the attacker wins; otherwise the defender wins.',
+                    special: 'The attacking army gets 25% more points than the defender. <br>If an attacking unit seizes the marker, remove it from the table, it is carried by that unit. If the unit is shaken or destroyed, the defender places the marker within 6"', scoring: 'unique', rounds: 6
+                },
+            ],
+        };
+
+        const SIDE_MISSIONS = {
+            'Tactical Genius': ['Mislead', 'Fortify', 'Seize', 'Rule', 'Dominate', 'Equalize'],
+            'Field Marshal': ['Control', 'Intimidate', 'Overrun', 'Spread Out', 'Invade', 'Defend'],
+            'Astute Strategist': ['Rush', 'Finalize', 'Conserve', 'Erode', 'Terrify', 'Hex'],
+            'Combat Master': ['Slaughter', 'Wipe Out', 'Exterminate', 'Butcher', 'Eradicate', 'Massacre'],
+            'Monster Hunter': ['Eliminate', 'Destroy', 'Obliterate', 'Erase', 'Annihilate', 'Decimate'],
+            'Heroic General': ['Slay', 'Execute', 'Terminate', 'Assassinate', 'Murder', 'Dispatch'],
+        };
+
+        const SM_DESC = {
+            'Mislead': 'Control no objectives.',
+            'Fortify': 'Control only one objective.',
+            'Seize': 'Control most objectives.',
+            'Rule': 'Control more objectives than an opponent.',
+            'Dominate': 'Have an enemy control no objectives.',
+            'Equalize': 'Control as many objectives as an opponent.',
+            'Control': 'Have one or more friendly units fully within 6" of the table centre.',
+            'Intimidate': 'Have no enemy units within 6” of the table center.',
+            'Overrun': 'Have at least one friendly unit inside each table quarter.',
+            'Spread Out': 'Have at least one friendly unit within 12” of each table corner.',
+            'Invade': 'Have at least two friendly units inside an enemy deployment zone.',
+            'Defend': 'Have no enemy units inside your deployment zone.',
+            'Rush': 'Be the first player to destroy an enemy unit.',
+            'Finalize': 'Be the last player to destroy an enemy unity.',
+            'Conserve': 'Keep at least 50% of friendly units alive.',
+            'Erode': 'Destroy at least 50% of an enemy’s units.',
+            'Terrify': 'Two or more enemy units failed a morale test caused by friendly units.',
+            'Hex': 'Successfully cast four or more spells.',
+            'Slaughter': 'Destroy three or more enemy units with 5+ models.',
+            'Wipe Out': 'Destroy more enemy units with 5+ models than any opponent.',
+            'Exterminate': 'Destroy the enemy unit with 5+ models with most models - if multiple, destroy one.',
+            'Butcher': 'Destroy the most expensive enemy unit with 5+ models - if multiple, destroy one.',
+            'Eradicate': 'Destroy the least expensive enemy unit with 5+ models - if multiple, destroy one.',
+            'Massacre': 'Destroy twenty or more enemy models.',
+            'Eliminate': 'Destroy two or more enemy units with Tough (12+).',
+            'Destroy': 'Destroy more enemy units with Tough (12+) than any opponent.',
+            'Obliterate': 'Destroy the enemy unit with the highest Tough value, must be Tough (12+) - if multiple, destroy one.',
+            'Erase': 'Destroy the most expensive enemy unit with Tough (12+) - if multiple, destroy one.',
+            'Annihilate': 'Destroy the least expensive enemy unit with Tough (12+) - if multiple, destroy one.',
+            'Decimate': 'Deal twelve or more wounds to a single unit with Tough (18+).',
+            'Slay': 'Destroy two or more enemy Heroes.',
+            'Execute': 'Destroy more enemy Heroes than any opponent.',
+            'Terminate': 'Destroy the enemy Hero with the highest Tough value - if multiple, destroy one.',
+            'Assassinate': 'Destroy the most expensive enemy Hero - if multiple, destroy one.',
+            'Murder': 'Destroy the least expensive enemy Hero - if multiple, destroy one.',
+            'Dispatch': 'Destroy one enemy Hero and its unit.',
+        };
+
+        // Objective-count strings map to a VP-per-marker multiplier. Previously this
+        // nested ternary was duplicated verbatim inside both branches of getScoringText.
+        const OBJ_COUNT_MAP = { 'D3+2': 4, '1 * PLAYERS': 2, '1': 1, '2 * PLAYERS': 4 };
+
+        // Random-generator mode copy, previously duplicated identically inside both
+        // openRandomGenPopup() and setGameMode().
+        const MODE_DESCRIPTIONS = {
+            narrative: 'All deployment styles and mission types available.',
+            competitive: 'Only standard/strategic deployment styles and symmetric mission types available.',
+        };
+
+        // ── STATE ──
+        let state = {
+            name: 'Custom Scenario',
+            desc: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer molestie est ut felis pellentesque tempus. Nunc id euismod quam. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec aliquet luctus velit, ut euismod purus finibus id. Ut sit amet lobortis magna, vitae scelerisque nulla. Phasellus venenatis.',
+            pack: 'Created by João Carlos @pell707',
+            deployment: 'frontline',
+            missionType: 'faceoff',
+            missionId: 'duel',
+            sideMissions: [
+                { cat: 'Field Marshal', mission: 'Intimidate' },
+                { cat: 'Combat Master', mission: 'Wipe Out' },
+                { cat: 'Heroic General', mission: 'Assassinate' },
+            ],
+        };
+
+        // ── DEPLOY POPUP ──
+        function openDeployPopup() {
+            $('deployPopup').classList.add('open');
+            renderPopup();
+        }
+        function closeDeployPopup(e) {
+            if (!e || e.target === $('deployPopup')) $('deployPopup').classList.remove('open');
+        }
+        function renderPopup() {
+            let html = '';
+            for (const cat of DEPLOY_CATS) {
+                html += `<div class="popup-cat-title">${cat}</div><div class="popup-grid">`;
+                for (const d of DEPLOYMENTS_BY_CAT.get(cat)) {
+                    html += `<div class="deploy-card ${state.deployment === d.id ? 'selected' : ''}" onclick="selectDeploy('${d.id}')">
+            <img src="${d.img}" alt="${d.name}">
+            <div class="dc-name">${d.name}</div>
+            </div>`;
+                }
+                html += '</div>';
+            }
+            $('popupContent').innerHTML = html;
+        }
+        function selectDeploy(id) {
+            state.deployment = id;
+            $('deployPopup').classList.remove('open');
+            updateDeployBtn();
+            renderDoc();
+        }
+        function updateDeployBtn() {
+            const d = DEPLOY_MAP.get(state.deployment);
+            if (!d) return;
+            $('deployThumb').src = d.img;
+            $('deployNameLabel').textContent = d.name;
+            $('deployCatLabel').textContent = d.cat;
+        }
+
+        // ── RANDOM GENERATOR POPUP ──
+        let randomGenMode = 'narrative'; // 'narrative' or 'competitive'
+        let randomGenNumSideMissions = 3; // Number of side missions to generate
+        let randomGenPlayerCount = 2; // Number of players
+
+        function setPlayerCount(count, element) {
+            randomGenPlayerCount = count;
+            document.querySelectorAll('[data-players]').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        function openRandomGenPopup() {
+            $('numSideMissions').value = randomGenNumSideMissions;
+
+            document.querySelectorAll('[data-players]').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[data-players="${randomGenPlayerCount}"]`)?.classList.add('active');
+
+            document.querySelectorAll('[data-mode]').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[data-mode="${randomGenMode}"]`)?.classList.add('active');
+
+            $('modeDescription').textContent = MODE_DESCRIPTIONS[randomGenMode];
+
+            $('randomGenPopup').classList.add('open');
+        }
+
+        function closeRandomGenPopup(e) {
+            if (!e || e.target === $('randomGenPopup')) {
+                randomGenNumSideMissions = parseInt($('numSideMissions').value) || 0;
+                $('randomGenPopup').classList.remove('open');
+            }
+        }
+
+        function setGameMode(mode, element) {
+            randomGenMode = mode;
+            document.querySelectorAll('[data-mode]').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+            $('modeDescription').textContent = MODE_DESCRIPTIONS[mode];
+        }
+
+        function getRandomItem(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+
+        function generateRandomScenario() {
+            const numSideMissions = parseInt($('numSideMissions').value) || 0;
+
+            // Deployment
+            if (randomGenPlayerCount === 3) {
+                state.deployment = 'threeway';
+            } else if (randomGenPlayerCount === 4) {
+                state.deployment = 'fourway';
+            } else {
+                let pool = DEPLOYMENTS.filter(d => d.cat !== 'Multiplayer');
+                if (randomGenMode === 'competitive') pool = pool.filter(d => d.cat !== 'Asymmetric');
+                state.deployment = getRandomItem(pool).id;
+            }
+
+            // Mission type + mission
+            let missionTypes = Object.keys(MISSIONS);
+            if (randomGenMode === 'competitive') missionTypes = missionTypes.filter(t => t !== 'attackdefend');
+            state.missionType = getRandomItem(missionTypes);
+            state.missionId = getRandomItem(MISSIONS[state.missionType]).id;
+
+            // Side missions (no duplicates) — shuffle once (Fisher–Yates), take first N.
+            state.sideMissions = [];
+            if (numSideMissions > 0) {
+                const allSideMissions = Object.entries(SIDE_MISSIONS)
+                    .flatMap(([cat, missions]) => missions.map(mission => ({ cat, mission })));
+
+                for (let i = allSideMissions.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [allSideMissions[i], allSideMissions[j]] = [allSideMissions[j], allSideMissions[i]];
+                }
+
+                state.sideMissions = allSideMissions.slice(0, Math.min(numSideMissions, allSideMissions.length));
+            }
+
+            randomGenNumSideMissions = numSideMissions;
+
+            $('randomGenPopup').classList.remove('open');
+
+            $('missionType').value = state.missionType;
+            buildMissionSelect();
+            updateDeployBtn();
+            buildSMUI();
+            renderDoc();
+        }
+
+        // ── MISSION ──
+        function onMissionTypeChange() {
+            state.missionType = $('missionType').value;
+            state.missionId = MISSIONS[state.missionType][0].id;
+            buildMissionSelect();
+            update();
+        }
+        function buildMissionSelect() {
+            const list = MISSIONS[state.missionType];
+            $('missionSelect').innerHTML = list
+                .map(m => `<option value="${m.id}" ${state.missionId === m.id ? 'selected' : ''}>${m.name}</option>`)
+                .join('');
+        }
+
+        // ── SIDE MISSIONS ──
+        function buildSMUI() {
+            $('smList').innerHTML = state.sideMissions.map((sm, i) => `
+        <div class="sm-row">
+          <select onchange="updateSM(${i},'cat',this.value)" style="flex:1.1">
+            ${Object.keys(SIDE_MISSIONS).map(c => `<option value="${c}" ${sm.cat === c ? 'selected' : ''}>${c}</option>`).join('')}
+          </select>
+          <select onchange="updateSM(${i},'mission',this.value)" style="flex:1">
+            ${(SIDE_MISSIONS[sm.cat] || []).map(m => `<option value="${m}" ${sm.mission === m ? 'selected' : ''}>${m}</option>`).join('')}
+          </select>
+          <button class="btn-remove" onclick="removeSM(${i})">✕</button>
+        </div>`).join('');
+        }
+        function updateSM(i, field, val) {
+            state.sideMissions[i][field] = val;
+            if (field === 'cat') state.sideMissions[i].mission = SIDE_MISSIONS[val][0];
+            render();
+        }
+        function removeSM(i) { state.sideMissions.splice(i, 1); render(); }
+        function addSideMission() {
+            const cat = Object.keys(SIDE_MISSIONS)[0];
+            state.sideMissions.push({ cat, mission: SIDE_MISSIONS[cat][0] });
+            render();
+        }
+
+        /// ── SCORING TEXT ──
+        // Every mission type (face-off, progressive, and Attack & Defend) scores
+        // through the same universal VP system: a marker VP value based on the
+        // objective count (1 objective = 3 VPs, 2 = 2 VPs each, 3+ = 1 VP each).
+        function getScoringText(mission) {
+            const rounds = mission.rounds || 4;
+
+            // 1 objective = 3 VPs, 2 objectives = 2 VPs each, 3+ objectives = 1 VP each.
+            const countNum = OBJ_COUNT_MAP[mission.objCount] ?? (parseInt(mission.objCount) || 3);
+            const perMarker = countNum <= 1 ? 3 : countNum === 2 ? 2 : 1;
+            const plural = perMarker > 1 ? 's' : '';
+
+            let vpRule;
+
+            switch (mission.scoring) {
+                case 'progressive':
+                    vpRule = `At the end of each round, players score ${perMarker} × X VPs per controlled/owned marker, where X is the current round number.`;
+                    break;
+
+                case 'face-off':
+                    vpRule = `At the end of each round, players score ${perMarker} VP${plural} per controlled/owned marker.`;
+                    break;
+
+                case 'unique':
+                    switch (mission.id)
+                    {
+                        case 'theraid':
+                            vpRule = `At the end of the game, players score ${perMarker} VP${plural} per controlled/owned marker.`;
+                            break;
+                        case 'laststand':
+                            vpRule = `At the end of the game, players score ${perMarker} VP${plural} per controlled/owned marker.`;
+                            break;
+                        case 'smashandgrab':
+                            vpRule = `At the end of the game, if the relic marker is within 6" of any table edge, the attacker scores 3 VPs; otherwise the defender scores 3 VPs.`;
+                            break;
+                        case 'therescue':
+                            vpRule = `At the end of the game, if the marker is within 6" of any table edge, the attacker scores ${perMarker} VP${plural}; otherwise the defender scores ${perMarker} VP${plural}.`;
+                            break;
+                        case 'ambush':
+                            vpRule = `At the end of the game, players score ${perMarker} VP${plural} per controlled/owned marker.`;
+                            break;
+                        case 'vipescort':
+                            vpRule = `At the end of the game, if the marker is within 6" of the opposite table edge from where it started, the defender scores ${perMarker} VP${plural}; otherwise the attacker scores ${perMarker} VP${plural}.`;
+                            break;
+                        default:
+                            vpRule = `At the end of the game, players score ${perMarker} VP${plural} per controlled/owned marker.`;
+                            break;
+                    }
+                    break;
+                default:
+                    vpRule = `At the end of the game, players score ${perMarker} VP${plural} per controlled/owned marker.`;
+                    break;
+            }
+
+            return `${vpRule}<p>After ${rounds} rounds the game ends. The player that scored most VPs wins.</p>`;
+        }
+
+        // ── RENDER DOC ──
+        function renderDoc() {
+            const d = DEPLOY_MAP.get(state.deployment) || DEPLOYMENTS[0];
+            const mList = MISSIONS[state.missionType];
+            const mission = mList.find(x => x.id === state.missionId) || mList[0];
+
+            const smRows = state.sideMissions
+                .map(sm => `<li><span class="sm-name">${sm.mission.toUpperCase()}</span> — ${SM_DESC[sm.mission] || ''}</li>`)
+                .join('');
+
+            const smVP = mission.scoring === 'progressive'
+                ? `At the end of the game, players score X VPs for each side-mission completed, where X is the final round number.`
+                : `At the end of the game, players score 1 VP for each side-mission completed.`;
+
+            const smBlock = state.sideMissions.length
+                ? `<span class="section-label">Side-Missions</span>
+            <p>${smVP}</p>
+            <ul>${smRows}</ul>`
+                : '';
+
+            const descHtml = `<div class="doc-description">${(state.desc || 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer molestie est ut felis pellentesque tempus. Nunc id euismod quam. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec aliquet luctus velit, ut euismod purus finibus id. Ut sit amet lobortis magna, vitae scelerisque nulla. Phasellus venenatis.').replace(/\n/g, '<br>')}</div>`;
+
+            const attackNote = state.missionType === 'attackdefend'
+                ? `The players roll off. Starting with the winner, players choose whether to be the Attacker or Defender, then select deployment `
+                : `The players roll-off. Starting with the winner, players select deployment `;
+
+            const specialBlock = mission.special
+                ? `<span class="section-label">Special Rules</span><p>${mission.special}</p>`
+                : '';
+
+            $('a4doc').innerHTML = `
+        <div class="doc-title">${state.name || 'Scenario'}</div>
+        <div class="doc-pack">${state.pack || ''} · ${d.cat} Deployment</div>
+        ${descHtml}
+        <div class="doc-columns">
+          <div>
+            <div class="doc-col-title" style="font-size:26px">${mission.name}</div>
+            <div class="doc-col-body">
+              <p><strong>OBJECTIVE MARKERS: ${mission.objCount}</strong></p>
+              <p>${mission.objPlacement}</p>
+              <span class="section-label">Seizing Objectives</span>
+              <p>At the end of each round, if a unit is within 3" of a marker whilst no enemies are, it counts as seized. Markers stay under the player's control even if the unit moves away, but if units from both sides contest a marker it becomes neutral.</p>
+              ${specialBlock}
+            </div>
+          </div>
+          <div>
+            <div class="doc-col-title" style="margin-top:12px">Deployment</div>
+            <div class="doc-col-body">
+              ${attackNote}
+              ${d.text}
+              <p></p><p>Starting with the roll-off winner, players alternate deploying one unit at a time within their deployment zone.</p>
+              <span class="section-label">First Turn</span>
+              <p>The player that won the deployment roll-off gets the first turn.</p>
+            </div>
+          </div>
+          <div>
+            <div class="doc-col-title" style="margin-top:12px">Scoring</div>
+            <div class="doc-col-body">
+              <p>${getScoringText(mission)}</p>
+              ${smBlock}
+            </div>
+          </div>
+        </div>
+        <div class="doc-diagram-area">
+          <img src="${d.img}" alt="${d.name} deployment diagram">
+          <div class="doc-diagram-label">Mission Diagram — ${d.name}</div>
+        </div>
+        <div class="doc-footer">
+          <span>${state.pack || 'Custom Scenario'}</span>
+          <span>onepagerules.com</span>
+        </div>`;
+        }
+
+        // ── UPDATE / RENDER ──
+        function update() {
+            state.name = $('scenarioName').value || 'Scenario';
+            state.desc = $('scenarioDesc').value;
+            state.pack = $('packName').value;
+            state.missionType = $('missionType').value;
+            state.missionId = $('missionSelect').value;
+            renderDoc();
+        }
+
+        function render() {
+            buildMissionSelect();
+            buildSMUI();
+            updateDeployBtn();
+            renderDoc();
+        }
+
+        // init
+        buildMissionSelect();
+        render();
+    </script>
+</body>
+</html>
