@@ -38,6 +38,7 @@
 
         html, body {
             height: 100%;
+            overscroll-behavior: none;
         }
 
         body {
@@ -121,6 +122,8 @@
             width: 360px;
             flex-shrink: 0;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
             padding: 16px;
             border-right: 1px solid var(--panel-border);
             background: #1f1f1f;
@@ -597,6 +600,8 @@
         .preview-panel {
             flex: 1;
             overflow: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
             background: #555;
             display: flex;
             flex-direction: column;
@@ -810,6 +815,19 @@
 
         /* MOBILE */
         @media (max-width: 860px) {
+            html, body {
+                height: 100%;
+                position: fixed;
+                inset: 0;
+                width: 100%;
+                overflow: hidden;
+            }
+
+            body {
+                height: 100vh;
+                height: 100dvh; /* accounts for the mobile browser's collapsing address bar */
+            }
+
             header {
                 padding: 8px 12px;
                 gap: 10px;
@@ -1451,8 +1469,20 @@
         function generateRandomScenario() {
             const numSideMissions = parseInt($('numSideMissions').value) || 0;
 
+            // Mission type + mission (decided first, since Attack & Defend
+            // changes which deployments are valid regardless of player count)
+            let missionTypes = Object.keys(MISSIONS);
+            if (randomGenMode === 'competitive') missionTypes = missionTypes.filter(t => t !== 'attackdefend');
+            state.missionType = getRandomItem(missionTypes);
+            state.missionId = getRandomItem(MISSIONS[state.missionType]).id;
+
             // Deployment
-            if (randomGenPlayerCount === 3) {
+            if (state.missionType === 'attackdefend') {
+                // Attack & Defend works with any deployment, even for 3-4 players
+                let pool = DEPLOYMENTS.filter(d => d.cat !== 'Multiplayer');
+                if (randomGenMode === 'competitive') pool = pool.filter(d => d.cat !== 'Asymmetric');
+                state.deployment = getRandomItem(pool).id;
+            } else if (randomGenPlayerCount === 3) {
                 state.deployment = 'threeway';
             } else if (randomGenPlayerCount === 4) {
                 state.deployment = 'fourway';
@@ -1461,12 +1491,6 @@
                 if (randomGenMode === 'competitive') pool = pool.filter(d => d.cat !== 'Asymmetric');
                 state.deployment = getRandomItem(pool).id;
             }
-
-            // Mission type + mission
-            let missionTypes = Object.keys(MISSIONS);
-            if (randomGenMode === 'competitive') missionTypes = missionTypes.filter(t => t !== 'attackdefend');
-            state.missionType = getRandomItem(missionTypes);
-            state.missionId = getRandomItem(MISSIONS[state.missionType]).id;
 
             // Side missions (no duplicates) — shuffle once (Fisher–Yates), take first N.
             state.sideMissions = [];
