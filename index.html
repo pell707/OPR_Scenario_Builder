@@ -59,6 +59,7 @@
             background: #141414;
             border-bottom: 1px solid var(--panel-border);
             flex-shrink: 0;
+            flex-wrap: nowrap;
         }
 
         .logo {
@@ -83,6 +84,10 @@
 
         .header-right {
             margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: nowrap;
         }
 
         .btn-print {
@@ -760,6 +765,119 @@
                 color: #888;
             }
 
+        /* TOGGLE FORM BUTTON */
+        .btn-toggle-form {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 7px 14px;
+            background: #333;
+            color: #f0f0f0;
+            border: 1px solid #555;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+            .btn-toggle-form:hover {
+                background: #444;
+                border-color: var(--accent-color);
+            }
+
+            .btn-toggle-form.active {
+                background: var(--accent-color);
+                border-color: var(--accent-color);
+                color: #fff;
+            }
+
+        /* MOBILE FORM BACKDROP (only relevant under the mobile breakpoint) */
+        .form-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 40;
+        }
+
+        /* Desktop: fully collapse the form panel to give the preview more room */
+        body.form-hidden .form-panel {
+            display: none;
+        }
+
+        /* MOBILE */
+        @media (max-width: 860px) {
+            header {
+                padding: 8px 12px;
+                gap: 10px;
+            }
+
+            .subtitle {
+                display: none;
+            }
+
+            .btn-print {
+                padding: 7px 10px;
+                font-size: 13px;
+            }
+
+            .btn-toggle-form {
+                padding: 7px 10px;
+                font-size: 13px;
+            }
+
+            .main {
+                position: relative;
+            }
+
+            /* Form becomes a slide-in drawer, hidden by default on mobile */
+            .form-panel {
+                position: fixed;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                width: 88%;
+                max-width: 340px;
+                z-index: 50;
+                transform: translateX(-100%);
+                transition: transform 0.22s ease;
+                box-shadow: 4px 0 24px rgba(0,0,0,0.6);
+            }
+
+                .form-panel.form-open {
+                    transform: translateX(0);
+                }
+
+            body.form-hidden .form-panel {
+                /* on mobile "hidden" just means "closed drawer", not display:none,
+                   so the slide transition keeps working */
+                display: block;
+            }
+
+            .form-backdrop.open {
+                display: block;
+            }
+
+            .preview-panel {
+                width: 100%;
+                padding: 10px 8px 30px;
+            }
+
+            .preview-label {
+                padding-left: 2px;
+            }
+
+            /* The A4 sheet is scaled to fit the viewport via JS (transform: scale),
+               these rules just make sure it doesn't force horizontal scrolling
+               before the JS runs. */
+            .a4 {
+                margin: 0 auto;
+            }
+        }
+
         /* PRINT */
         @media print {
             @page {
@@ -773,7 +891,7 @@
                 height: auto;
             }
 
-            header, .form-panel, .preview-label, .popup-overlay {
+            header, .form-panel, .preview-label, .popup-overlay, .form-backdrop {
                 display: none !important;
             }
 
@@ -788,9 +906,10 @@
                 box-shadow: none;
                 width: 210mm;
                 min-height: 297mm;
-                margin: 0;
+                margin: 0 !important;
                 padding: 13mm 13mm 20mm 13mm;
                 page-break-after: always;
+                transform: none !important;
             }
         }
     </style>
@@ -803,14 +922,18 @@
         </div>
         <div class="subtitle">One Page Rules</div>
         <div class="header-right">
+            <button class="btn-toggle-form" id="toggleFormBtn" onclick="toggleForm()" title="Hide/show the form">☰ Hide Form</button>
             <button class="btn-print" onclick="window.print()">⎙ Print / Save PDF</button>
         </div>
     </header>
 
     <div class="main">
 
+        <!-- MOBILE BACKDROP for the form drawer -->
+        <div class="form-backdrop" id="formBackdrop" onclick="toggleForm()"></div>
+
         <!-- FORM -->
-        <div class="form-panel">
+        <div class="form-panel" id="formPanel">
 
             <div class="form-panel-top">
                 <button class="btn-generate" onclick="openRandomGenPopup()">Generate Random Scenario</button>
@@ -1537,6 +1660,8 @@
           <span>${state.pack || 'Custom Scenario'}</span>
           <span>onepagerules.com</span>
         </div>`;
+
+            if (typeof fitA4Preview === 'function') fitA4Preview();
         }
 
         // ── UPDATE / RENDER ──
@@ -1556,9 +1681,78 @@
             renderDoc();
         }
 
+        // ── FORM VISIBILITY (desktop collapse + mobile drawer) ──
+        const MOBILE_BREAKPOINT = 860;
+        const toggleBtn = $('toggleFormBtn');
+        const formPanel = $('formPanel');
+        const formBackdrop = $('formBackdrop');
+
+        function isMobile() {
+            return window.innerWidth <= MOBILE_BREAKPOINT;
+        }
+
+        function toggleForm() {
+            if (isMobile()) {
+                const open = formPanel.classList.toggle('form-open');
+                formBackdrop.classList.toggle('open', open);
+                toggleBtn.classList.toggle('active', open);
+                toggleBtn.textContent = open ? '✕ Close' : '☰ Form';
+            } else {
+                const hidden = document.body.classList.toggle('form-hidden');
+                toggleBtn.classList.toggle('active', hidden);
+                toggleBtn.textContent = hidden ? '☰ Show Form' : '☰ Hide Form';
+            }
+            fitA4Preview();
+        }
+
+        // Keep the button label/state sane when resizing across the breakpoint
+        function syncFormUIForViewport() {
+            if (isMobile()) {
+                document.body.classList.remove('form-hidden');
+                toggleBtn.classList.toggle('active', formPanel.classList.contains('form-open'));
+                toggleBtn.textContent = formPanel.classList.contains('form-open') ? '✕ Close' : '☰ Form';
+            } else {
+                formPanel.classList.remove('form-open');
+                formBackdrop.classList.remove('open');
+                toggleBtn.classList.toggle('active', document.body.classList.contains('form-hidden'));
+                toggleBtn.textContent = document.body.classList.contains('form-hidden') ? '☰ Show Form' : '☰ Hide Form';
+            }
+        }
+
+        // ── A4 PREVIEW AUTO-FIT (shrinks the fixed-size A4 sheet to fit small screens) ──
+        function fitA4Preview() {
+            const a4 = $('a4doc');
+            const wrap = a4.parentElement; // .preview-panel
+
+            if (!isMobile()) {
+                a4.style.transform = '';
+                a4.style.marginBottom = '';
+                return;
+            }
+
+            // Reset transform before measuring the sheet's natural (untransformed) size
+            a4.style.transform = '';
+            const naturalWidth = a4.offsetWidth;
+            const naturalHeight = a4.offsetHeight;
+            const available = wrap.clientWidth - 4; // tiny buffer to avoid rounding overflow
+
+            const scale = Math.min(1, available / naturalWidth);
+            a4.style.transformOrigin = 'top center';
+            a4.style.transform = `scale(${scale})`;
+            // Collapse the extra layout space left behind by the visual-only transform
+            a4.style.marginBottom = (naturalHeight * scale - naturalHeight) + 'px';
+        }
+
+        window.addEventListener('resize', () => {
+            syncFormUIForViewport();
+            fitA4Preview();
+        });
+
         // init
         buildMissionSelect();
         render();
+        syncFormUIForViewport();
+        fitA4Preview();
     </script>
 </body>
 </html>
